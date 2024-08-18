@@ -86,7 +86,7 @@ ModbusIP mb;  //ModbusIP object
 IPAddress MBremote(77, 204, 15, 6);   // Address of Internet Box 
 const int START_REG = 12689;       // Starting holding register
 const int NUM_REGS = 10;           // Number of holding registers to read
-const int INTERVAL = 5000;         // Interval between reads (in milliseconds)
+const int INTERVAL = 10000;         // Interval between reads (in milliseconds)
 
 uint16_t MBresult[NUM_REGS];
 uint8_t show = NUM_REGS;  // Counter for displaying values
