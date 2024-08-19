@@ -165,13 +165,10 @@ void ShowMatrix() {
   matrix.fillScreen(0);
   matrix.setCursor(x, 0);
 
-  if (--x < -maxDisplacement) {
-    //matrix.setBrightness(50);
-    //matrix.setTextColor(matrix.Color(100, 0, 100));  //GRB
-    strMesFiFoOut = fnFiFoUnload();
+  if (--x < (-maxDisplacement-10)) {
+    strMesFiFoOut = fnFiFoUnload(); //On recupère le prochain message dans le FiFo
     sPrintToMatrix = String(strMesFiFoOut.sTimeStp) + " " + String(strMesFiFoOut.sMess);
     maxDisplacement = sPrintToMatrix.length() * pixelPerChar;
-    //matrix.print(sPrintToMatrix);
     x = matrix.width();
     if (SERDEBUG) {
       Serial.println("Pos= " + String(FiFoPos));
@@ -218,11 +215,14 @@ void ReadModbus() {
         // Calcul la moyenne 
         rAvgTempExt = round(fnAverage(rTempExt) * 100.0) / 100.0;
 
+        matrix.setBrightness(40);
         matrix.setTextColor(matrix.Color(50, 0, 100)); //GRB
-        if (rTempExt >= 26.0 ) {
-            matrix.setTextColor(matrix.Color(125, 255, 0)); //GRB
-        } else if (rTempExt >= 30.0){
-            matrix.setTextColor(matrix.Color(0, 255, 0)); //GRB
+        if (rTempExt >= 30.0 ) {
+            matrix.setBrightness(20);
+            matrix.setTextColor(matrix.Color(0, 255, 0)); //GRB  Rouge
+        } else if (rTempExt >= 26.0){
+            matrix.setBrightness(30);
+            matrix.setTextColor(matrix.Color(125, 255, 0)); //GRB  Orange
         }
 
         sTrend = String(" =");
