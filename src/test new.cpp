@@ -60,7 +60,7 @@ int timer = 0;     //used in the delay function, difference between currmillis a
 int i;
 struct tm timeinfo;
 int  pixelPerChar = 6;
-int  maxDisplacement = 500;
+int  maxDisplacement = 100;
 int iState = 0;
 String sPrintdate;
 String sPrintShortdate;
@@ -165,20 +165,23 @@ void ShowMatrix() {
   matrix.fillScreen(0);
   matrix.setCursor(x, 0);
 
-  if (--x < (-maxDisplacement-10)) {
+  if (--x < -maxDisplacement) {
     strMesFiFoOut = fnFiFoUnload(); //On recupère le prochain message dans le FiFo
     sPrintToMatrix = String(strMesFiFoOut.sTimeStp) + " " + String(strMesFiFoOut.sMess);
     maxDisplacement = sPrintToMatrix.length() * pixelPerChar;
     x = matrix.width();
+    if (maxDisplacement <= x) exit;
     if (SERDEBUG) {
+      Serial.println("x= " + String(x));
       Serial.println("Pos= " + String(FiFoPos));
       Serial.println("printTomatrix: " + sPrintToMatrix);
       Serial.println("maxDisplacement: " + String(maxDisplacement));
     }
+  } else {
+    matrix.print(sPrintToMatrix);
+    matrix.show();
+    delay(MATRIXSPEED);
   }
-  matrix.print(sPrintToMatrix);
-  matrix.show();
-  delay(MATRIXSPEED);
 }
 
 void ReadModbus() {
@@ -237,10 +240,10 @@ void ReadModbus() {
         fnFiFoLoad(sLoad);
 
         if (SERDEBUG) { 
-          Serial.print("T.Ext. = ");
+          Serial.print("T.Ext.= ");
           Serial.println(String(sLoad.sMess));
           Serial.println("Pos= " + String(FiFoPos));
-          Serial.print("Avg T.Ext. = ");
+          Serial.print("Avg T.Ext.= ");
           Serial.print(String(rAvgTempExt));
           Serial.println(sTrend);
         }
@@ -289,7 +292,7 @@ void timeloop (int interval){ // the delay function
 }
 
 void setTimezone(String timezone){
-  if (SERDEBUG) Serial.printf(" Setting Timezone to %s\n",timezone.c_str());
+  if (SERDEBUG) Serial.printf("Setting Timezone to %s\n",timezone.c_str());
   setenv("TZ",timezone.c_str(),1);  //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
   tzset();
 }
@@ -318,14 +321,15 @@ void printLocalTime(){
 
 void startWifi(){
   WiFi.begin(ssid, password);
+    
+  strcpy(sLoad.sTimeStp, "");
+  strcpy(sLoad.sMess, "Connexion WIFI...");
+  fnFiFoLoad(sLoad);
+  ShowMatrix();
 
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Recherche WIFI......");
-    strcpy(sLoad.sTimeStp, "");
-    strcpy(sLoad.sMess, "Recherche WIFI...");
-    fnFiFoLoad(sLoad);
-    ShowMatrix();
-    delay(500);
+    Serial.println("Connexion WIFI...");
+    delay(50);
   }
 
   Serial.print("Wifi RSSI=");
@@ -335,7 +339,7 @@ void startWifi(){
   Serial.println(WiFi.localIP());
   sLocalIP = WiFi.localIP().toString();
 
-  strcpy(sLoad.sTimeStp, "Adr. IP: ");
+  strcpy(sLoad.sTimeStp, "Adr. IP:");
   strcpy(sLoad.sMess, WiFi.localIP().toString().c_str());
   fnFiFoLoad(sLoad);
   ShowMatrix();
@@ -362,7 +366,7 @@ void setup() {
   matrix.begin();
   matrix.setTextWrap(false);
   matrix.setBrightness(40);
-  matrix.setTextColor(matrix.Color(50,0,100)); //BGR
+  matrix.setTextColor(matrix.Color(50, 0, 100)); //BGR
 
   startWifi();
   
