@@ -52,6 +52,14 @@ String sPrintToMatrix;
 #define FIFOSIZE 20
 #define SERDEBUG false
 
+//////////////  Led Strip  ///////////////////////////////////////////////////////
+#define PIN_NEO_PIXEL 14  // The ESP32 pin GPIO16 connected to NeoPixel
+#define NUM_PIXELS 64     // The number of LEDs (pixels) on NeoPixel LED strip
+
+Adafruit_NeoPixel NeoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 int x= 150;
 unsigned long readMillis;
 unsigned long prevmillis = 0; //used to hold previous value of currmillis
@@ -374,6 +382,8 @@ void setup() {
 
   mb.client();
   time1_now = millis();
+
+  NeoPixel.begin();  // initialize NeoPixel strip object (REQUIRED)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -403,6 +413,64 @@ void loop() {
       fnFiFoLoad(sLoad);
   }
 
-  ReadModbus();
-  ShowMatrix();
+  //ReadModbus();
+  //ShowMatrix();
+
+
+//////////////////////////////////       Led Strip   /////////////////////////////////////////////////
+NeoPixel.clear();  // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
+
+  // turn pixels to green one-by-one with delay between each pixel
+  for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {           // for each pixel
+    NeoPixel.setPixelColor(pixel, NeoPixel.Color(100, 0, 0));  //GRB     it only takes effect if pixels.show() is called
+    NeoPixel.show();                                           // update to the NeoPixel Led Strip
+    delay(50);  // 500ms pause between each pixel
+  }
+
+  // turn off all pixels for two seconds
+  NeoPixel.clear();
+  NeoPixel.show();  // update to the NeoPixel Led Strip
+  delay(2000);      // 2 seconds off time
+
+
+///  BLEU BLANC ROUGE
+
+// turn on all pixels to red at the same time for two seconds
+  for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {           // for each pixel
+    NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 0, 100));  // GRB  it only takes effect if pixels.show() is called
+  }
+  NeoPixel.show();  // update to the NeoPixel Led Strip
+  delay(1000);      // 1 second on time
+
+  // turn off all pixels for one seconds
+  NeoPixel.clear();
+  NeoPixel.show();  // update to the NeoPixel Led Strip
+  delay(500);      // 1 second off time
+
+
+// turn on all pixels to red at the same time for two seconds
+  for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {           // for each pixel
+    NeoPixel.setPixelColor(pixel, NeoPixel.Color(100, 100, 100));  // GRB  it only takes effect if pixels.show() is called
+  }
+  NeoPixel.show();  // update to the NeoPixel Led Strip
+  delay(1000);      // 1 second on time
+
+  // turn off all pixels for one seconds
+  NeoPixel.clear();
+  NeoPixel.show();  // update to the NeoPixel Led Strip
+  delay(500);      // 1 second off time
+
+
+
+// turn on all pixels to red at the same time for two seconds
+  for (int pixel = 0; pixel < NUM_PIXELS; pixel++) {           // for each pixel
+    NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 100, 0));  // GRB  it only takes effect if pixels.show() is called
+  }
+  NeoPixel.show();  // update to the NeoPixel Led Strip
+  delay(1000);      // 1 second on time
+
+  // turn off all pixels for one seconds
+  NeoPixel.clear();
+  NeoPixel.show();  // update to the NeoPixel Led Strip
+  delay(500);      // 1 second off time
 }
